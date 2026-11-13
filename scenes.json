@@ -9,13 +9,20 @@
       "duration_sec": 5,
       "narration": "Subah ki pehli kiran jab gaon ke khet par padti hai, toh har patta jaag uthta hai.",
       "visual_prompt": "Cinematic wide shot of golden sunrise over misty North Indian rural wheat fields, warm volumetric sunlight, 35mm film grain, ultra detailed, slow camera pan",
-      "status": "pending"
+      "status": "done"
     },
     {
       "id": 2,
       "duration_sec": 5,
       "narration": "Lekin is shaanti ke peeche ek aisi kahani chhupi hai jise koi nahi jaanta.",
       "visual_prompt": "Cinematic medium shot of an old weathered wooden lantern hanging on a mud wall in a quiet Indian village at dawn, soft shadows, moody film lighting, 35mm",
+      "status": "done"
+    },
+    {
+      "id": 3,
+      "duration_sec": 5,
+      "narration": "Har kadam ke saath waqt badal raha tha, aur uski manzil aur kareeb aa rahi thi.",
+      "visual_prompt": "Continuous 360-degree orbital Steadicam camera shot circling smoothly around a 30-year-old Indian man walking steadily forward along an old North Indian sandstone bazaar street at golden hour. Foreground soft-focus hanging marigold garlands passing the lens, razor-sharp focus on his natural Indian skin tone, textured cream cotton kurta, and calm determined expression in the midground, warm 3000K amber sunlight rays and softly blurred heritage arches and tea stalls in the background, Arri Alexa 35mm cinematic look, photorealistic, 24fps",
       "status": "pending"
     }
   ]
