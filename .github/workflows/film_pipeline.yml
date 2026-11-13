@@ -1,0 +1,110 @@
+name: AI Cinematic Film Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: "Pipeline stage to run"
+        required: true
+        default: "audio"
+        type: choice
+        options:
+          - audio
+          - trigger_kaggle_gpu
+          - stitch_final
+      batch_start:
+        description: "Start scene index for Kaggle GPU batch (e.g. 1)"
+        required: false
+        default: "1"
+      batch_end:
+        description: "End scene index for Kaggle GPU batch (e.g. 15)"
+        required: false
+        default: "15"
+
+env:
+  HF_DATASET_REPO: ${{ vars.HF_DATASET_REPO }}
+
+jobs:
+  generate-audio:
+    if: github.event.inputs.stage == 'audio'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install edge-tts huggingface_hub
+
+      - name: Generate voiceover & subtitles (edge-tts)
+        run: python scripts/generate_audio.py
+
+      - name: Upload audio to Hugging Face Dataset
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/sync_hf.py upload assets/audio audio
+
+  trigger-kaggle-gpu:
+    if: github.event.inputs.stage == 'trigger_kaggle_gpu'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: pip install kaggle
+
+      - name: Configure Kaggle & push GPU job
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python scripts/prepare_kaggle_job.py \
+            --start "${{ github.event.inputs.batch_start }}" \
+            --end "${{ github.event.inputs.batch_end }}" \
+            --repo "${{ github.repository }}" \
+            --hf-repo "${{ env.HF_DATASET_REPO }}"
+          kaggle kernels push -p kaggle/
+          echo "Kaggle T4x2 GPU job pushed! Check status at https://www.kaggle.com/code/${KAGGLE_USERNAME}/ai-film-clip-renderer"
+
+  stitch-final-film:
+    if: github.event.inputs.stage == 'stitch_final'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install FFmpeg & dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip install huggingface_hub
+
+      - name: Download clips & audio from Hugging Face Dataset
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python scripts/sync_hf.py download clips assets/clips
+          python scripts/sync_hf.py download audio assets/audio
+
+      - name: Stitch 25-min film with FFmpeg
+        run: python scripts/stitch_film.py
+
+      - name: Upload final MP4 to Hugging Face Dataset
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python scripts/sync_hf.py upload output final_output
