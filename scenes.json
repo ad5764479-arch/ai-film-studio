@@ -1,0 +1,22 @@
+{
+  "film_title": "Mitti Ki Kahani",
+  "voice": "hi-IN-SwaraNeural",
+  "fps": 24,
+  "resolution": "1280x720",
+  "scenes": [
+    {
+      "id": 1,
+      "duration_sec": 5,
+      "narration": "Subah ki pehli kiran jab gaon ke khet par padti hai, toh har patta jaag uthta hai.",
+      "visual_prompt": "Cinematic wide shot of golden sunrise over misty North Indian rural wheat fields, warm volumetric sunlight, 35mm film grain, ultra detailed, slow camera pan",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "duration_sec": 5,
+      "narration": "Lekin is shaanti ke peeche ek aisi kahani chhupi hai jise koi nahi jaanta.",
+      "visual_prompt": "Cinematic medium shot of an old weathered wooden lantern hanging on a mud wall in a quiet Indian village at dawn, soft shadows, moody film lighting, 35mm",
+      "status": "pending"
+    }
+  ]
+}
