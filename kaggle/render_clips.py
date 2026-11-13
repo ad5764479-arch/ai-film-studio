@@ -10,6 +10,9 @@ HF_TOKEN = "__HF_TOKEN__"
 BATCH_START = int("__BATCH_START__")
 BATCH_END = int("__BATCH_END__")
 
+os.environ["HF_TOKEN"] = HF_TOKEN
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
+
 subprocess.run(["pip", "install", "-q", "diffusers", "transformers", "accelerate", "huggingface_hub", "imageio-ffmpeg"], check=True)
 
 import torch
@@ -21,9 +24,10 @@ from huggingface_hub import HfApi
 subprocess.run(["git", "clone", f"https://github.com/{GITHUB_REPO}.git", "repo"], check=True)
 scenes_data = json.loads(Path("repo/scenes.json").read_text(encoding="utf-8"))
 
-# 2. Load lightweight Wan2.1 1.3B model (fits on free 16GB T4 GPU)
+# 2. Load Wan2.1 1.3B with CPU offload so it fits comfortably in 14.5 GB T4 VRAM
 pipe = WanPipeline.from_pretrained("Wan-AI/Wan2.1-T2V-1.3B-Diffusers", torch_dtype=torch.float16)
-pipe.to("cuda")
+pipe.enable_model_cpu_offload()
+pipe.vae.enable_tiling()
 
 out_dir = Path("rendered_clips")
 out_dir.mkdir(exist_ok=True)
